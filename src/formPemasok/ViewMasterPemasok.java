@@ -1,0 +1,414 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JInternalFrame.java to edit this template
+ */
+package formPemasok;
+
+import _cetak.TableToPDF;
+import _cetak.TableToExcel;
+import java.awt.Component;
+import java.awt.event.KeyEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author HP
+ */
+public class ViewMasterPemasok extends javax.swing.JInternalFrame {
+
+    /**
+     * Creates new form ViewMasterPemasok
+     */
+    
+    private FormIsianPemasok isianPemasok;
+    private String taskFormIsianPemasok = "CREATE";
+    private TableToPDF templateCetakan;
+    private TableToExcel templateCetakanExcel;
+    
+    public ViewMasterPemasok() {
+        isianPemasok = new FormIsianPemasok();
+        templateCetakan = new TableToPDF();
+        templateCetakanExcel = new TableToExcel();
+        initComponents();
+        tampilDataIsianPemasok("");
+    }
+    
+    private static String generateDynamicFileName() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        return now.format(formatter);
+    }
+    
+    public void hideColumnsByName(JTable table, String... columnNames) {
+        for (String columnName : columnNames) {
+            int columnIndexToHide = -1;
+
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                // Case-insensitive comparison
+                if (table.getColumnName(i).equalsIgnoreCase(columnName)) {
+                    columnIndexToHide = i;
+                    break;
+                }
+            }
+
+            if (columnIndexToHide != -1) {
+                // Set the width of the column to 0 to hide it
+                table.getColumnModel().getColumn(columnIndexToHide).setMinWidth(0);
+                table.getColumnModel().getColumn(columnIndexToHide).setMaxWidth(0);
+                table.getColumnModel().getColumn(columnIndexToHide).setWidth(0);
+            } else {
+                System.out.println("Column not found: " + columnName);
+            }
+        }
+    }
+    
+    public void tampilDataIsianPemasok(String cariData) {
+        DefaultTableModel listTableKategori = new DefaultTableModel();
+        listTableKategori.addColumn("Pemasok Id");
+        listTableKategori.addColumn("Pemasok Nama");
+        listTableKategori.addColumn("Pemasok Alamat");
+        listTableKategori.addColumn("Pemasok Tlp");
+        listTableKategori.addColumn("Pemasok Status");
+
+    try {
+        java.sql.Connection conn = (java.sql.Connection) database.Koneksi.koneksiDB();
+        String sql;
+
+        if (!cariData.isEmpty()) {
+            sql = "call searchPemasok(?)";
+            
+            java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, "%" + cariData.toLowerCase() + "%");
+            //pst.setString(2, "%" + cariData.toLowerCase() + "%");
+            //pst.setString(3, "%" + cariData.toLowerCase() + "%");
+
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                listTableKategori.addRow(new Object[]{
+                    rs.getString("pemasok_id"),
+                    rs.getString("pemasok_nama"),
+                    rs.getString("pemasok_alamat"),
+                    rs.getString("pemasok_tlp"),
+                    rs.getString("pemasok_status")
+                });
+            }
+        } else {
+            // If no search text, retrieve all records
+            sql = "SELECT * FROM pemasok WHERE pemasok_status = 'Aktif'";
+            
+            java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                listTableKategori.addRow(new Object[]{
+                    rs.getString("pemasok_id"),
+                    rs.getString("pemasok_nama"),
+                    rs.getString("pemasok_alamat"),
+                    rs.getString("pemasok_tlp"),
+                    rs.getString("pemasok_status")
+                });
+            }
+        }
+
+        tabelMasterPemasok.setModel(new DefaultTableModel());
+        tabelMasterPemasok.setModel(listTableKategori);
+        hideColumnsByName(tabelMasterPemasok, "Pemasok Id");
+    } catch (SQLException e) {
+        // Handle the exception
+        e.printStackTrace();  // or log the exception
+    } catch (Exception e) {
+        // handle exceptions, at least log them
+        e.printStackTrace();
+    }
+}
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        panelPemasok = new javax.swing.JPanel();
+        btnTambah = new javax.swing.JButton();
+        btnUbahMasterPemasok = new javax.swing.JButton();
+        btnCetakMasterPemasok = new javax.swing.JButton();
+        btnCetakExcel = new javax.swing.JButton();
+        LabelPencarian = new javax.swing.JLabel();
+        jComboBox1 = new javax.swing.JComboBox<>();
+        cariTabelPemasokField = new javax.swing.JTextField();
+        btnRefresh = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tabelMasterPemasok = new javax.swing.JTable();
+
+        setClosable(true);
+        setTitle("Master Pemasok");
+
+        panelPemasok.setBackground(new java.awt.Color(0, 102, 102));
+
+        btnTambah.setBackground(new java.awt.Color(0, 0, 102));
+        btnTambah.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnTambah.setForeground(new java.awt.Color(255, 255, 255));
+        btnTambah.setIcon(new javax.swing.ImageIcon(getClass().getResource("/_asset/03.png"))); // NOI18N
+        btnTambah.setText("Tambah Pemasok");
+        btnTambah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTambahActionPerformed(evt);
+            }
+        });
+
+        btnUbahMasterPemasok.setBackground(new java.awt.Color(0, 0, 102));
+        btnUbahMasterPemasok.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnUbahMasterPemasok.setForeground(new java.awt.Color(255, 255, 255));
+        btnUbahMasterPemasok.setIcon(new javax.swing.ImageIcon(getClass().getResource("/_asset/19_edit.png"))); // NOI18N
+        btnUbahMasterPemasok.setText("Ubah Pemasok");
+        btnUbahMasterPemasok.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUbahMasterPemasokActionPerformed(evt);
+            }
+        });
+
+        btnCetakMasterPemasok.setBackground(new java.awt.Color(0, 0, 102));
+        btnCetakMasterPemasok.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnCetakMasterPemasok.setForeground(new java.awt.Color(255, 255, 255));
+        btnCetakMasterPemasok.setIcon(new javax.swing.ImageIcon(getClass().getResource("/_asset/11_print.png"))); // NOI18N
+        btnCetakMasterPemasok.setText("Cetak");
+        btnCetakMasterPemasok.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCetakMasterPemasokActionPerformed(evt);
+            }
+        });
+
+        btnCetakExcel.setBackground(new java.awt.Color(0, 0, 102));
+        btnCetakExcel.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnCetakExcel.setForeground(new java.awt.Color(255, 255, 255));
+        btnCetakExcel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/_asset/11_print.png"))); // NOI18N
+        btnCetakExcel.setText("Cetak Excel");
+        btnCetakExcel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCetakExcelActionPerformed(evt);
+            }
+        });
+
+        LabelPencarian.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        LabelPencarian.setForeground(new java.awt.Color(255, 255, 255));
+        LabelPencarian.setText("Cari");
+
+        jComboBox1.setBackground(new java.awt.Color(102, 102, 0));
+        jComboBox1.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        jComboBox1.setForeground(new java.awt.Color(255, 255, 255));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilihan Anda", "Nama", "Pemasok Alamat", "Pemasok Tlp" }));
+
+        cariTabelPemasokField.setBackground(new java.awt.Color(51, 51, 51));
+        cariTabelPemasokField.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        cariTabelPemasokField.setForeground(new java.awt.Color(255, 255, 255));
+        cariTabelPemasokField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cariTabelPemasokFieldActionPerformed(evt);
+            }
+        });
+        cariTabelPemasokField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                cariTabelPemasokFieldKeyPressed(evt);
+            }
+        });
+
+        btnRefresh.setBackground(new java.awt.Color(0, 0, 102));
+        btnRefresh.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnRefresh.setForeground(new java.awt.Color(255, 255, 255));
+        btnRefresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/_asset/22.png"))); // NOI18N
+        btnRefresh.setText("Refresh");
+        btnRefresh.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRefreshActionPerformed(evt);
+            }
+        });
+
+        tabelMasterPemasok.setBackground(new java.awt.Color(51, 51, 51));
+        tabelMasterPemasok.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        tabelMasterPemasok.setForeground(new java.awt.Color(255, 255, 255));
+        tabelMasterPemasok.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        tabelMasterPemasok.setGridColor(new java.awt.Color(204, 204, 255));
+        jScrollPane1.setViewportView(tabelMasterPemasok);
+
+        javax.swing.GroupLayout panelPemasokLayout = new javax.swing.GroupLayout(panelPemasok);
+        panelPemasok.setLayout(panelPemasokLayout);
+        panelPemasokLayout.setHorizontalGroup(
+            panelPemasokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelPemasokLayout.createSequentialGroup()
+                .addGap(63, 63, 63)
+                .addComponent(LabelPencarian)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cariTabelPemasokField, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnRefresh)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnTambah)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnUbahMasterPemasok)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnCetakMasterPemasok)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnCetakExcel)
+                .addContainerGap(64, Short.MAX_VALUE))
+            .addGroup(panelPemasokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelPemasokLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1013, Short.MAX_VALUE)
+                    .addContainerGap()))
+        );
+        panelPemasokLayout.setVerticalGroup(
+            panelPemasokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelPemasokLayout.createSequentialGroup()
+                .addGap(14, 14, 14)
+                .addGroup(panelPemasokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnTambah, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(LabelPencarian, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cariTabelPemasokField, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnUbahMasterPemasok, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCetakMasterPemasok, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnCetakExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(426, Short.MAX_VALUE))
+            .addGroup(panelPemasokLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelPemasokLayout.createSequentialGroup()
+                    .addContainerGap(89, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap()))
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelPemasok, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(panelPemasok, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
+        // TODO add your handling code here:
+        if( ! ( isianPemasok.isVisible() ) ) { // Memeriksa apakah menuProduk sedang tidak tampil
+            isianPemasok.refreshFormIsianPemasok();
+            Component parentComponent = null; // Replace with the actual component reference
+            isianPemasok.setLocationRelativeTo(parentComponent);
+            //isianPemasok.refreshFormIsian();
+            isianPemasok.setParentisianPemasok(this);
+            isianPemasok.setVisible(true);
+        }
+        else {
+            isianPemasok.requestFocusInWindow();
+            isianPemasok.setFocusable(true);
+            JOptionPane.showMessageDialog(this, "Form Tambah produk Sudah Terbuka, Silahkan Lengkapi data dahulu.");
+        }
+    }//GEN-LAST:event_btnTambahActionPerformed
+
+    private void btnUbahMasterPemasokActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUbahMasterPemasokActionPerformed
+        // TODO add your handling code here:
+        int selectedRowIndex = tabelMasterPemasok.getSelectedRow();
+
+        if (selectedRowIndex == -1) {
+            // No row is selected, show a message
+            JOptionPane.showMessageDialog(this, "Tidak Ada Data Yang Dipilih, Mohon Cek Kembali.", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        } else {
+            setFormUpdateMasterPemasok();
+        }
+    }//GEN-LAST:event_btnUbahMasterPemasokActionPerformed
+
+    private void btnCetakMasterPemasokActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCetakMasterPemasokActionPerformed
+        // TODO add your handling code here:
+        templateCetakan.exportTableToPDF(
+            tabelMasterPemasok,
+            "cetak/gudang/gudang"+generateDynamicFileName()+".pdf",
+            "Daftar Master Pemasok"
+        );
+    }//GEN-LAST:event_btnCetakMasterPemasokActionPerformed
+
+    private void btnCetakExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCetakExcelActionPerformed
+        // TODO add your handling code here:
+        templateCetakanExcel.exportToExcel(
+            tabelMasterPemasok,
+            "cetak/gudang/gudang"+generateDynamicFileName()+".xls",
+            "Daftar Master Gudang"
+        );
+    }//GEN-LAST:event_btnCetakExcelActionPerformed
+
+    private void cariTabelPemasokFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cariTabelPemasokFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cariTabelPemasokFieldActionPerformed
+
+    private void cariTabelPemasokFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cariTabelPemasokFieldKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            // This block will be executed when the Enter key is pressed
+            String enteredText = cariTabelPemasokField.getText();
+            // Perform your desired action with the entered text
+            // For example, you might want to process the entered SKU
+            tampilDataIsianPemasok(enteredText);
+        }
+    }//GEN-LAST:event_cariTabelPemasokFieldKeyPressed
+
+    private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
+        // TODO add your handling code here:
+        cariTabelPemasokField.setText("");
+        tampilDataIsianPemasok("");
+    }//GEN-LAST:event_btnRefreshActionPerformed
+
+    public void setFormUpdateMasterPemasok(){
+        int selectedRowIndex = tabelMasterPemasok.getSelectedRow();
+         
+        // A row is selected, retrieve data and perform the update
+        String pemasok_id = (String) tabelMasterPemasok.getValueAt(selectedRowIndex, 0);
+        String pemasok_nama = (String) tabelMasterPemasok.getValueAt(selectedRowIndex, 1);
+        String pemasok_alamat = (String) tabelMasterPemasok.getValueAt(selectedRowIndex, 2);
+        String pemasok_tlp = (String) tabelMasterPemasok.getValueAt(selectedRowIndex, 3);
+        String pemasok_status = (String) tabelMasterPemasok.getValueAt(selectedRowIndex, 4);
+        
+        Component parentComponent = null; // Replace with the actual component reference
+        
+        isianPemasok.setLocationRelativeTo(parentComponent);
+        isianPemasok.setDataUpdateFormIsianPemasok(pemasok_id, pemasok_nama, pemasok_alamat, pemasok_tlp, pemasok_status);
+        isianPemasok.setParentisianPemasok(this);
+        isianPemasok.setVisible(true);
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel LabelPencarian;
+    private javax.swing.JButton btnCetakExcel;
+    private javax.swing.JButton btnCetakMasterPemasok;
+    private javax.swing.JButton btnRefresh;
+    private javax.swing.JButton btnTambah;
+    private javax.swing.JButton btnUbahMasterPemasok;
+    private javax.swing.JTextField cariTabelPemasokField;
+    private javax.swing.JComboBox<String> jComboBox1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel panelPemasok;
+    private javax.swing.JTable tabelMasterPemasok;
+    // End of variables declaration//GEN-END:variables
+}

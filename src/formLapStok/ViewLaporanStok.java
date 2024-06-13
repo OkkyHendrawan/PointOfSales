@@ -1,0 +1,336 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JInternalFrame.java to edit this template
+ */
+package formLapStok;
+
+import _cetak.TableToExcel;
+import _cetak.TableToPDF;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.design.JasperDesign;
+
+/**
+ *
+ * @author HP
+ */
+public class ViewLaporanStok extends javax.swing.JInternalFrame {
+
+    JasperReport JasRep;
+    JasperPrint JasPri;
+    Map param = new HashMap(2);
+    JasperDesign JasDes;
+    private String listCetakLaporan = "CETAK";
+    private DefaultTableModel tabmode;
+    private TableToPDF templateCetakanPdf;
+    private TableToExcel templateCetakanExcel;
+    
+    /**
+     * Creates new form ViewLaporanStok
+     */
+    
+    public ViewLaporanStok() {
+        templateCetakanPdf = new TableToPDF();
+        templateCetakanExcel = new TableToExcel();
+        initComponents();
+    }
+    
+    
+    private static String generateDynamicFileName() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+        return now.format(formatter);
+    }
+    
+    public void hideColumnsByName(JTable table, String... columnNames) {
+        for (String columnName : columnNames) {
+            int columnIndexToHide = -1;
+
+            for (int i = 0; i < table.getColumnCount(); i++) {
+                // Case-insensitive comparison
+                if (table.getColumnName(i).equalsIgnoreCase(columnName)) {
+                    columnIndexToHide = i;
+                    break;
+                }
+            }
+
+            if (columnIndexToHide != -1) {
+                // Set the width of the column to 0 to hide it
+                table.getColumnModel().getColumn(columnIndexToHide).setMinWidth(0);
+                table.getColumnModel().getColumn(columnIndexToHide).setMaxWidth(0);
+                table.getColumnModel().getColumn(columnIndexToHide).setWidth(0);
+            } else {
+                System.out.println("Column not found: " + columnName);
+            }
+        }
+    }
+    
+    public void tampilDataLaporanStok(String tanggalAwal, String tanggalAkhir){
+        DefaultTableModel listTableMasterProduk = new DefaultTableModel();
+        listTableMasterProduk.addColumn("Kstok Id");
+        listTableMasterProduk.addColumn("Kstok Jenis");
+        listTableMasterProduk.addColumn("Kstok Nomor Faktur");
+        listTableMasterProduk.addColumn("Kstok Tanggal Stok");
+        listTableMasterProduk.addColumn("Kstok Produk Nama");
+        listTableMasterProduk.addColumn("Kstok Satuan Nama");
+        listTableMasterProduk.addColumn("Kstok Jumlah");
+        listTableMasterProduk.addColumn("Kstok Gudang Nama");
+
+        try {
+            java.sql.Connection conn = (java.sql.Connection) database.Koneksi.koneksiDB();
+            String sql;
+                    
+                sql = "CALL SearchKartuStok('"+tanggalAwal+"' , '"+tanggalAkhir+"')";
+//                
+            System.out.println(sql);
+            
+            // System.out.print(sql);
+            java.sql.PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            
+
+            while (rs.next()) {
+                listTableMasterProduk.addRow(new Object[]{
+                    rs.getString("kstok_id"),
+                    rs.getString("kstok_jenis"),
+                    rs.getString("kstok_nomor_faktur"),
+                    rs.getString("tanggal_stok"),
+                    rs.getString("produk_nama"),
+                    rs.getString("produk_kode"),
+                    rs.getString("satuan_nama"),
+                    rs.getString("gudang_nama"),
+                });
+            }
+            
+            tableGridLaporanStok.setModel(new DefaultTableModel());
+
+            tableGridLaporanStok.setModel(listTableMasterProduk);
+            //hideColumnsByName(tableGridLaporanStok, "kstok_id");
+        } catch (SQLException e) {
+            // Handle the exception
+            e.printStackTrace();  // or log the exception
+        } catch (Exception e) {
+            // handle exceptions, at least log them
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jPanel1 = new javax.swing.JPanel();
+        lbTanggalAwal = new javax.swing.JLabel();
+        TanggalAwalField = new com.toedter.calendar.JDateChooser();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tableGridLaporanStok = new javax.swing.JTable();
+        lbTanggalAkhir = new javax.swing.JLabel();
+        TanggalAkhirField = new com.toedter.calendar.JDateChooser();
+        btnCariLaporanStok = new javax.swing.JButton();
+        btnCetakPdf = new javax.swing.JButton();
+        btnCetakExcel = new javax.swing.JButton();
+
+        setClosable(true);
+        setTitle("Laporan Stok");
+
+        jPanel1.setBackground(new java.awt.Color(0, 102, 102));
+
+        lbTanggalAwal.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        lbTanggalAwal.setForeground(new java.awt.Color(255, 255, 255));
+        lbTanggalAwal.setText("Dari Tanggal");
+
+        TanggalAwalField.setBackground(new java.awt.Color(204, 204, 0));
+        TanggalAwalField.setForeground(new java.awt.Color(255, 255, 255));
+
+        tableGridLaporanStok.setBackground(new java.awt.Color(51, 51, 51));
+        tableGridLaporanStok.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
+        tableGridLaporanStok.setForeground(new java.awt.Color(255, 255, 255));
+        tableGridLaporanStok.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Kstok Id", "Kstok Jenis", "Kstok Nomor Faktur", "Kstok Tanggal Stok", "Kstok Produk Nama", "Kstok Satuan Nama", "Kstok Jumlah", "Kstok Gudang Nama"
+            }
+        ));
+        jScrollPane1.setViewportView(tableGridLaporanStok);
+
+        lbTanggalAkhir.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        lbTanggalAkhir.setForeground(new java.awt.Color(255, 255, 255));
+        lbTanggalAkhir.setText("Sampai Tanggal");
+
+        TanggalAkhirField.setBackground(new java.awt.Color(204, 204, 0));
+        TanggalAkhirField.setForeground(new java.awt.Color(255, 255, 255));
+
+        btnCariLaporanStok.setBackground(new java.awt.Color(0, 0, 153));
+        btnCariLaporanStok.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnCariLaporanStok.setForeground(new java.awt.Color(255, 255, 255));
+        btnCariLaporanStok.setIcon(new javax.swing.ImageIcon(getClass().getResource("/_asset/46.png"))); // NOI18N
+        btnCariLaporanStok.setText("Cari Laporan Stok");
+        btnCariLaporanStok.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCariLaporanStokActionPerformed(evt);
+            }
+        });
+
+        btnCetakPdf.setBackground(new java.awt.Color(0, 0, 153));
+        btnCetakPdf.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnCetakPdf.setForeground(new java.awt.Color(255, 255, 255));
+        btnCetakPdf.setIcon(new javax.swing.ImageIcon(getClass().getResource("/_asset/11_print.png"))); // NOI18N
+        btnCetakPdf.setText("Cetak");
+        btnCetakPdf.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCetakPdfActionPerformed(evt);
+            }
+        });
+
+        btnCetakExcel.setBackground(new java.awt.Color(0, 0, 153));
+        btnCetakExcel.setFont(new java.awt.Font("Arial", 1, 12)); // NOI18N
+        btnCetakExcel.setForeground(new java.awt.Color(255, 255, 255));
+        btnCetakExcel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/_asset/11_print.png"))); // NOI18N
+        btnCetakExcel.setText("Cetak Excel");
+        btnCetakExcel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCetakExcelActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1)
+                .addContainerGap())
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(31, 31, 31)
+                .addComponent(lbTanggalAwal, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(TanggalAwalField, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lbTanggalAkhir)
+                .addGap(18, 18, 18)
+                .addComponent(TanggalAkhirField, javax.swing.GroupLayout.PREFERRED_SIZE, 149, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnCariLaporanStok)
+                .addGap(32, 32, 32)
+                .addComponent(btnCetakPdf, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(btnCetakExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(31, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(42, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbTanggalAwal, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnCetakExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnCetakPdf, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btnCariLaporanStok, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(TanggalAwalField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lbTanggalAkhir, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(TanggalAkhirField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void btnCariLaporanStokActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCariLaporanStokActionPerformed
+        // TODO add your handling code here:
+        Date tanggalAwal = TanggalAwalField.getDate();
+        Date tanggalAkhir = TanggalAkhirField.getDate();
+        if (tanggalAwal != null && tanggalAkhir !=null){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String tanggalAwalValue = dateFormat.format(tanggalAwal);
+            String tanggalAkhirValue = dateFormat.format(tanggalAkhir);
+            tampilDataLaporanStok(tanggalAwalValue, tanggalAkhirValue);
+        }else{
+            JOptionPane.showMessageDialog(this, "Tanggal Awal dan Akhir Mohon Di isikan Terlebih Dahulu!!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_btnCariLaporanStokActionPerformed
+
+    private void btnCetakPdfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCetakPdfActionPerformed
+        // TODO add your handling code here:
+        Date tanggalAwal = TanggalAwalField.getDate();
+        Date tanggalAkhir = TanggalAkhirField.getDate();
+        if (tanggalAwal != null && tanggalAkhir !=null){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            String tanggalAwalValue = dateFormat.format(tanggalAwal);
+            String tanggalAkhirValue = dateFormat.format(tanggalAkhir);
+            templateCetakanPdf.exportTableToPDF(
+                tableGridLaporanStok,
+                "cetak/laporan-stok/rekap-stok-"+generateDynamicFileName()+".pdf",
+                "Daftar Penjualan Periode "+tanggalAwalValue+" s/d "+tanggalAkhirValue
+            );
+        }else{
+            JOptionPane.showMessageDialog(this, "Tanggal Awal dan Akhir Mohon Di isikan Terlebih Dahulu!!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_btnCetakPdfActionPerformed
+
+    private void btnCetakExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCetakExcelActionPerformed
+        // TODO add your handling code here:
+        Date tanggalAwal = TanggalAwalField.getDate();
+        Date tanggalAkhir = TanggalAkhirField.getDate();
+        if (tanggalAwal != null && tanggalAkhir !=null){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            String tanggalAwalValue = dateFormat.format(tanggalAwal);
+            String tanggalAkhirValue = dateFormat.format(tanggalAkhir);
+            templateCetakanExcel.exportToExcel(
+                tableGridLaporanStok,
+                "cetak/laporan-stok/rekap-stok-"+generateDynamicFileName()+".xls",
+                "Daftar Penjualan Periode "+tanggalAwalValue+" s/d "+tanggalAkhirValue
+            );
+        }else{
+            JOptionPane.showMessageDialog(this, "Tanggal Awal dan Akhir Mohon Di isikan Terlebih Dahulu!!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_btnCetakExcelActionPerformed
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private com.toedter.calendar.JDateChooser TanggalAkhirField;
+    private com.toedter.calendar.JDateChooser TanggalAwalField;
+    private javax.swing.JButton btnCariLaporanStok;
+    private javax.swing.JButton btnCetakExcel;
+    private javax.swing.JButton btnCetakPdf;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lbTanggalAkhir;
+    private javax.swing.JLabel lbTanggalAwal;
+    private javax.swing.JTable tableGridLaporanStok;
+    // End of variables declaration//GEN-END:variables
+}
